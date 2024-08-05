@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('feedback', function (Blueprint $table) {
             $table->id();
             $table->foreignId('game_id')->constrained('game')->onDelete('cascade');
+            $table->string('feedbackState')->default('New');
             $table->enum('platform', ['iOS', 'Android', 'Windows', 'macOS', 'Linux']);
             $table->string('version');
             $table->enum('category', ['bug', 'suggestion', 'praise', 'inquiry']);

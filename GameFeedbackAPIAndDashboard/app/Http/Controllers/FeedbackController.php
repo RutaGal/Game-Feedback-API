@@ -9,8 +9,8 @@ class FeedbackController extends Controller
 {
     public function index()
     {
-        $games = Feedback::all();
-        return response()->json($games);
+        $feedbacks = Feedback::all();
+        return response()->json($feedbacks);
     }
     public function store(Request $request)
     {
@@ -22,7 +22,7 @@ class FeedbackController extends Controller
                 'category' => 'required|in:bug,suggestion,praise,inquiry',
                 'content' => 'required|string|max:255',
             ]);
-
+//            $validated['feedbackState'] = $validated['feedbackState'] ?? 'new';
             $feedback = Feedback::create($validated);
 
             return response()->json([
