@@ -10,7 +10,22 @@ class FeedbackController extends Controller
     public function index()
     {
         $feedbacks = Feedback::all();
-        return response()->json($feedbacks);
+
+        $formattedFeedbacks = $feedbacks->map(function ($feedback) {
+            return [
+                'id' => $feedback->id,
+                'game_name' => $feedback->game->name,
+                'feedbackState' => $feedback->feedbackState,
+                'platform' => $feedback->platform,
+                'version' => $feedback->version,
+                'category' => $feedback->category,
+                'content' => $feedback->content,
+                'created_at' => $feedback->created_at,
+                'updated_at' => $feedback->updated_at,
+            ];
+        });
+
+        return response()->json($formattedFeedbacks);
     }
     public function store(Request $request)
     {

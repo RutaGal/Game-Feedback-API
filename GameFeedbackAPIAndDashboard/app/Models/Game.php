@@ -13,6 +13,6 @@ class Game extends Model
 
     public function feedback()
     {
-        return $this->hasMany(Feedback::class);
+        return $this->hasMany(Feedback::class, 'game_id');
     }
 }
