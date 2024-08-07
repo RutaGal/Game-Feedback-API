@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Feedback;
+use App\Rules\ValidCategoryType;
+use App\Rules\ValidFeedbackStateType;
+use App\Rules\ValidPlatformType;
 use Illuminate\Http\Request;
-
+use Illuminate\Http\Response;
 class FeedbackController extends Controller
 {
     public function index()
@@ -29,25 +32,44 @@ class FeedbackController extends Controller
     }
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'game_id' => 'required|integer|exists:game,id',
-                'platform' => 'required|in:iOS,Android,Windows,macOS,Linux',
-                'version' => 'required|regex:/^\d+\.\d+\.\d+$/',
-                'category' => 'required|in:bug,suggestion,praise,inquiry',
-                'content' => 'required|string|max:255',
-            ]);
-//            $validated['feedbackState'] = $validated['feedbackState'] ?? 'new';
-            $feedback = Feedback::create($validated);
+        $validated = $request->validate([
+            'game_id' => 'required|integer|exists:game,id',
+            'platform' => ['required', 'string', new ValidPlatformType()],
+            'version' => 'required|regex:/^\d+\.\d+\.\d+$/',
+            'category' => ['required', 'string', new ValidCategoryType()],
+            'content' => 'required|string|max:255',
+        ]);
+        $validated['feedbackState'] = $validated['feedbackState'] ?? 'new';
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Feedback submitted successfully!',
-                'data' => $feedback,
-            ], 201);
+        $feedback = Feedback::create($validated);
+
+        return response()->json([
+            'message' => 'Feedback submitted successfully!',
+            'data' => $feedback,
+        ], Response::HTTP_CREATED);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'feedbackState' => ['required', 'string', new ValidFeedbackStateType()]
+        ]);
+
+        $feedback = Feedback::find($id);
+
+        if (!$feedback) {
+            return  response()->json([
+                'message' => 'Feedback not found.',
+            ], Response::HTTP_NOT_FOUND);
         }
-        catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
+
+        // Update the feedback state
+        $feedback->feedbackState = $validated['feedbackState'];
+        $feedback->save();
+
+        return response()->json([
+            'message' => 'Feedback updated successfully!',
+            'data' => $feedback,
+        ], Response::HTTP_OK);
     }
 }
