@@ -8,7 +8,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/games', [GameController::class, 'index']);
-Route::get('/feedbackList', [FeedbackController::class, 'index']);
-Route::post('/feedback', [FeedbackController::class, 'store']) ;
-Route::put('/feedback/{id}', [FeedbackController::class, 'update']) ;
+Route::middleware(['throttle:1,1'])->group(function () {
+    Route::get('/games', [GameController::class, 'index']);
+    Route::get('/feedbackList', [FeedbackController::class, 'index']);
+    Route::post('/feedback', [FeedbackController::class, 'store']);
+    Route::put('/feedback/{id}', [FeedbackController::class, 'update']);
+});
