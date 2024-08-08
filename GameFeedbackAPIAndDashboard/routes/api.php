@@ -8,7 +8,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware(['throttle:1,1'])->group(function () {
+Route::middleware(['throttle:1,0.017'])->group(function () {
     Route::get('/games', [GameController::class, 'index']);
     Route::get('/feedbackList', [FeedbackController::class, 'index']);
     Route::post('/feedback', [FeedbackController::class, 'store']);
